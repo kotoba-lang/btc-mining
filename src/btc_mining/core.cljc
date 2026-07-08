@@ -4,9 +4,17 @@
   via ASIC hashrate and uses this only for the pool/job-template side, see
   kotoba-lang/mining-pool). Block header assembly, merkle root (with
   Bitcoin's odd-leaf-duplication quirk), bits<->target conversion, and a
-  CPU nonce search. Builds on btc-crypto's SHA256d."
+  CPU nonce search. Builds on btc-crypto's SHA256d.
+
+  PORTABILITY: :clj-only (wrapped #?(:clj (do ...)) with throwing :cljs
+  stubs of the same names, matching eth-crypto.core's precedent) —
+  needs java.math.BigInteger, and its btc-crypto.core dep is itself
+  :clj-only for the same reason."
   (:require [btc-crypto.core :as btc])
   #?(:clj (:import (java.math BigInteger))))
+
+#?(:clj
+(do
 
 ;; ─── header (de)serialization (80 bytes: version+prevhash+merkle+time+bits+nonce) ───
 
@@ -130,3 +138,18 @@
    :time curtime
    :bits bits
    :nonce 0})
+
+) ;; end do
+:cljs
+(do
+  (defn serialize-header [& _] (throw (ex-info "btc-mining.core/serialize-header is :clj-only" {})))
+  (defn parse-header [& _] (throw (ex-info "btc-mining.core/parse-header is :clj-only" {})))
+  (defn header-hash [& _] (throw (ex-info "btc-mining.core/header-hash is :clj-only (btc-crypto.core)" {})))
+  (defn display-hash [& _] (throw (ex-info "btc-mining.core/display-hash is :clj-only" {})))
+  (defn merkle-root [& _] (throw (ex-info "btc-mining.core/merkle-root is :clj-only (btc-crypto.core)" {})))
+  (defn bits->target [& _] (throw (ex-info "btc-mining.core/bits->target is :clj-only (java.math.BigInteger)" {})))
+  (def max-target-difficulty-1 nil)
+  (defn difficulty [& _] (throw (ex-info "btc-mining.core/difficulty is :clj-only (java.math.BigInteger)" {})))
+  (defn meets-target? [& _] (throw (ex-info "btc-mining.core/meets-target? is :clj-only (java.math.BigInteger)" {})))
+  (defn mine [& _] (throw (ex-info "btc-mining.core/mine is :clj-only" {})))
+  (defn template->header [& _] (throw (ex-info "btc-mining.core/template->header is :clj-only" {})))))
